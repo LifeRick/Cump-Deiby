@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feliz Cumpleaños, Deiby</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      background: radial-gradient(ellipse at bottom, #0b1123 0%, #000000 100%);
+      font-family: 'Segoe UI', sans-serif;
+      color: #ffffff;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    .content {
+      position: absolute;
+      z-index: 10;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      text-shadow: 0 0 12px rgba(0,191,255,0.9);
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 3.5em;
+      margin-bottom: 0.5em;
+      animation: glow 2s infinite alternate;
+    }
+
+    p {
+      font-size: 1.5em;
+      max-width: 600px;
+    }
+
+    .emoji {
+      font-size: 2em;
+      margin-top: 1em;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 8px #00bfff, 0 0 16px #00bfff; }
+      to   { text-shadow: 0 0 16px #00bfff, 0 0 32px #00bfff; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <div class="content">
+    <h1>🎉 ¡Feliz cumpleaños, Deiby! 🎂</h1>
+    <p>Eres un putito y ya deja de llorar por ella 😂. Disfruta tu día, loco. Te lo mereces (más o menos).</p>
+    <div class="emoji">🍻💔😎</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    });
+
+    class Star {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.size = Math.random() * 1.5 + 0.5;
+        this.alpha = Math.random();
+        this.alphaStep = 0.005 + Math.random() * 0.01;
+      }
+
+      update() {
+        this.alpha += this.alphaStep;
+        if (this.alpha >= 1 || this.alpha <= 0.2) this.alphaStep *= -1;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    class ShootingStar {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * w;
+        this.y = -100;
+        this.len = Math.random() * 150 + 100;
+        this.angle = Math.random() * 0.4 + 0.2;
+        this.speed = Math.random() * 5 + 5;
+        this.radius = Math.random() * 3 + 2;
+        this.opacity = 1;
+      }
+
+      update() {
+        this.x += this.speed * Math.cos(this.angle);
+        this.y += this.speed * Math.sin(this.angle);
+        this.opacity -= 0.005;
+        if (this.opacity <= 0) this.reset();
+      }
+
+      draw() {
+        const grad = ctx.createRadialGradient(
+          this.x, this.y, 0,
+          this.x, this.y, this.radius * 4
+        );
+        grad.addColorStop(0, `rgba(0,191,255,${this.opacity})`);
+        grad.addColorStop(1, `rgba(0,0,0,0)`);
+
+        ctx.beginPath();
+        ctx.fillStyle = grad;
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x - this.len * Math.cos(this.angle - 0.1), this.y - this.len * Math.sin(this.angle - 0.1));
+        ctx.strokeStyle = `rgba(0,191,255,${this.opacity})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    const stars = Array.from({length: 150}, () => new Star());
+    const shootingStars = Array.from({length: 8}, () => new ShootingStar());
+
+    function animate() {
+      ctx.clearRect(0, 0, w, h);
+      stars.forEach(star => {
+        star.update();
+        star.draw();
+      });
+      shootingStars.forEach(star => {
+        star.update();
+        star.draw();
+      });
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
